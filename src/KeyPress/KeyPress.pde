@@ -1,4 +1,4 @@
-/* //<>//
+/*
 You must press a Random Key, to kill the Circle on the Random position
  All Letters will be in a string[] and it will choose a random Number and picks this.
  The Circle gets the Key that must pressed.
@@ -42,7 +42,6 @@ SoundFile lose;
 SoundFile music;
 
 void settings() {
-  //fullScreen();
   size(1000, 1000);
 }
 
@@ -55,7 +54,6 @@ void setup() {
   fill(255);
   loadScreen = loadImage("Load.jpg");
   image(loadScreen, width/2, height/2);
-  //test for Existing FIle
   lines = loadStrings("gameInfo.app");
   save = lines;
   try {
@@ -87,10 +85,22 @@ void setup() {
     catch (IOException e) {
     }
   }
-
-
   //Download XML
   xml = loadXML("https://flossingame.glitch.me/Key.xml");
+  loadInternetFiles();
+  checkVersion();
+  noCursor();
+  setLetters();
+  time = millis();//store the current time
+  wait=Integer.parseInt(temp);
+  delay(1000);
+  position[0] = int(random(50, width-50));
+  position[1] = int(random(50, height-50));
+  delay(4000);
+}
+
+//Load the Content from the Internet
+void loadInternetFiles() {
   if (checkConnection()==true) {
     try {
       //Get Content of XML
@@ -164,18 +174,9 @@ void setup() {
       }
     }
   }
-  checkVersion();
-  noCursor();
-  setLetters();
-  time = millis();//store the current time
-  wait=Integer.parseInt(temp);
-  delay(1000);
-  position[0] = int(random(50, width-50));
-  position[1] = int(random(50, height-50));
-
-  delay(4000);
 }
 
+//Check if there is a connection
 boolean checkConnection() {
   String internet = null;
   try {
@@ -205,7 +206,6 @@ void draw() {
     if (millis() - time >= wait) {
       text("You Died :()", width/2, height/2);
       end();
-      //time = millis();//also update the stored time
     } else {
       ellipse(position[0], position[1], 100, 100);
       text("Points: "+score+'\n'+"High score: "+highScore, width/2, 50);
@@ -213,6 +213,8 @@ void draw() {
       text("Click: "+'\n'+letters[process], position[0], position[1]);
     }
   }
+  //Set the text 
+  //TODO: Load Strings from File.csv
   if (inf==1) {
     text("Welcome to my Game "+ "Score: "+score+" Highscore "+highScore+'\n'+"Info: "+'\n'+additional+'\n'+ "Change log: "+'\n'+changeLog, width/2, height/2);
     text("Credits with RIGHT Mouse Click. Restart with LEFT Mouse Click /ENTER. MUTE/UNMUTE with SHIFT", width/2, height-60);
@@ -223,21 +225,22 @@ void draw() {
   }
 }
 
+//Sets the Letters for the next 100 moves
 void setLetters() {
-  //Sets the Letters for this ROUND
   for (int i= 0; i!=letters.length; i++) {
     letters[i]=characters[int(random(0, characters.length))];
   }
 }
 
+//Check the newest version
 void checkVersion() {
-  //Checks the Version
   if (newestVersion.equals("No Internet Connection") || newestDeveloperVersion.equals(null)) {
   } else if ((!version.equals(newestVersion) || !developerVersion.equals(newestDeveloperVersion))) {
     link(downloadSite);
   }
 }
 
+//Reset the positions of the circle
 void reset() {
   position[0] = int(random(50, width-50));
   position[1] = int(random(50, height-50));
@@ -245,35 +248,15 @@ void reset() {
   setLetters();
 }
 
+//Ater a Game/If key was pressed to load the Data
 void retryConnection() {
-  String temp="5000";
   if (checkConnection()==true) {
-    try {
-      //Get Content of XML
-      XML[] xmlFile = xml.getChildren("id");
-      newestVersion = xmlFile[0].getContent();
-      changeLog = xmlFile[1].getContent();
-      additional = xmlFile[2].getContent();
-      downloadSite = xmlFile[3].getContent();
-      temp = xmlFile[4].getContent();
-      newestDeveloperVersion = xmlFile[5].getContent();
-      save[0] = newestVersion;
-      save[2]=temp;
-      wait=Integer.parseInt(temp);
-      checkVersion();
-    }
-    catch (NullPointerException n) {
-      newestVersion = "No Internet Connection";
-      changeLog = "No Internet Connection, restart the Game, to check again.";
-      additional = "No Internet Connection";
-    }
-    catch (ArrayIndexOutOfBoundsException a) {
-    }
+    loadInternetFiles();
   }
 }
 
+//Do the things, if some keys was pressed
 void checkPressed() {
-  //Check for Pressed Button  and do Something
   if (keyPressed == true) {
     if (key != ';' && key !=letters[process].charAt(0) && inf == 0 && key!='/' && keyCode != ENTER && keyCode != SHIFT) {
       end();
@@ -312,6 +295,7 @@ void checkPressed() {
   }
 }
 
+//Do the things, if a mouse key was pressed
 void checkMousePressed() {
   if (mouseButton==LEFT && inf != 0) { 
     time = millis();
@@ -332,6 +316,7 @@ void checkMousePressed() {
   }
 }
 
+//This will run, at the end of a Game
 void end() {
   try {
     if (playMusic == true) {
@@ -356,7 +341,7 @@ void end() {
   reset();
 }
 
-//Get only one click 
+//To avoid, that things will be runned more, than one time
 void keyPressed() {
   if (pressKey == 0) {
     pressKey = 255;
@@ -368,7 +353,7 @@ void keyReleased() {
     pressKey = 0;
   }
 }
-//Get one MouseClick
+//To avoid, that things will be runned more, than one time
 void mouseClicked() {
   if (pressMouse == 0) {
     pressMouse = 255;
